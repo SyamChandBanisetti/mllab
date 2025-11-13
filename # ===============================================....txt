@@ -1,0 +1,373 @@
+﻿# ================================================================
+# 🧩 WEEK 1 — Extract Data From Different File Formats
+# ================================================================
+import pandas as pd
+
+# CSV
+df_csv = pd.read_csv("data.csv")
+print("CSV Summary:"); print(df_csv.info()); print(df_csv.describe(include='all'), "\n")
+
+# JSON
+df_json = pd.read_json("data.json")
+print("JSON Summary:"); print(df_json.info()); print(df_json.describe(include='all'), "\n")
+
+# XML
+df_xml = pd.read_xml("data.xml")
+print("XML Summary:"); print(df_xml.info()); print(df_xml.describe(include='all'), "\n")
+
+# HTML
+tables = pd.read_html("data.html")
+df_html = tables[0]
+print("HTML Summary:"); print(df_html.info()); print(df_html.describe(include='all'))
+print(df_html.head())
+
+
+
+Python
+
+
+
+
+# ================================================================
+# 🧩 WEEK 2 — Extract Words (Features)
+# ================================================================
+import re
+import requests
+from bs4 import BeautifulSoup
+
+sentence = "Machine learning is amazing! Let's extract its features."
+words = re.findall(r'\b\w+\b', sentence.lower())
+print("\nWords from sentence:", words)
+
+url = "https://en.wikipedia.org/wiki/Web_scraping"
+headers = {"User-Agent": "Mozilla/5.0"}
+res = requests.get(url, headers=headers)
+soup = BeautifulSoup(res.text, "html.parser")
+text = ' '.join(soup.get_text().split())
+web_words = re.findall(r'\b\w+\b', text)
+print("\nExtracted words (first 50):", web_words[:50])
+
+
+
+Python
+
+
+
+
+# ================================================================
+# 🖼️ WEEK 3 — Edge Detection (Canny, LoG, Sobel)
+# ================================================================
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+img = cv2.imread('sample1_image.jpg')
+if img is None:
+   raise FileNotFoundError("Image not found.")
+
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+blurred = cv2.GaussianBlur(gray, (5,5), 0)
+
+edges_canny = cv2.Canny(blurred, 100, 200)
+edges_log = cv2.convertScaleAbs(cv2.Laplacian(blurred, cv2.CV_64F))
+sobel_x = cv2.Sobel(blurred, cv2.CV_64F, 1, 0, ksize=5)
+sobel_y = cv2.Sobel(blurred, cv2.CV_64F, 0, 1, ksize=5)
+sobel = cv2.convertScaleAbs(cv2.magnitude(sobel_x, sobel_y))
+
+plt.figure(figsize=(10,6))
+plt.subplot(2,2,1); plt.imshow(gray, cmap='gray'); plt.title("Grayscale"); plt.axis('off')
+plt.subplot(2,2,2); plt.imshow(edges_canny, cmap='gray'); plt.title("Canny"); plt.axis('off')
+plt.subplot(2,2,3); plt.imshow(edges_log, cmap='gray'); plt.title("LoG"); plt.axis('off')
+plt.subplot(2,2,4); plt.imshow(sobel, cmap='gray'); plt.title("Sobel"); plt.axis('off')
+plt.tight_layout(); plt.show()
+
+
+
+Python
+
+
+
+
+# ================================================================
+# 🔍 WEEK 4 — SIFT Feature Extraction
+# ================================================================
+import cv2
+import matplotlib.pyplot as plt
+
+img = cv2.imread('img1.jpg')
+if img is None:
+   raise ValueError("Image not found.")
+
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+sift = cv2.SIFT_create()
+kp, des = sift.detectAndCompute(gray, None)
+print("\nKeypoints Detected:", len(kp))
+
+img_kp = cv2.drawKeypoints(img, kp, None,
+                          flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+plt.imshow(cv2.cvtColor(img_kp, cv2.COLOR_BGR2RGB))
+plt.title("SIFT Keypoints")
+plt.axis('off')
+plt.show()
+
+
+
+Python
+
+
+
+
+# ================================================================
+# 📊 WEEK 5 — Exploratory Data Analysis (EDA)
+# ================================================================
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+df = pd.read_csv("synthetic_dna_dataset.csv")
+print(df.head()); print(df.describe())
+
+for col in df.select_dtypes(include='number'):
+   plt.figure()
+   sns.boxplot(y=df[col])
+   plt.title(col)
+   plt.show()
+
+plt.figure(figsize=(6,4))
+sns.heatmap(df.corr(), annot=True, cmap='coolwarm')
+plt.title("Correlation Heatmap")
+plt.show()
+
+
+
+Python
+
+
+
+
+# ================================================================
+# 🧭 WEEK 6 — Principal Component Analysis (PCA)
+# ================================================================
+from sklearn.datasets import load_iris
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
+
+iris = load_iris()
+X = StandardScaler().fit_transform(iris.data)
+y = iris.target
+
+pca = PCA(n_components=2)
+X_pca = pca.fit_transform(X)
+
+plt.scatter(X_pca[:,0], X_pca[:,1], c=y)
+plt.xlabel('PC1'); plt.ylabel('PC2')
+plt.title("PCA on Iris Dataset")
+plt.show()
+
+print("Explained Variance Ratio:", pca.explained_variance_ratio_)
+
+
+
+Python
+
+
+
+
+# ================================================================
+# ⚖️ WEEK 7 — Linear Discriminant Analysis (LDA)
+# ================================================================
+from sklearn.datasets import load_iris
+from sklearn.preprocessing import StandardScaler
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+import matplotlib.pyplot as plt
+
+iris = load_iris()
+X = StandardScaler().fit_transform(iris.data)
+y = iris.target
+mask = y < 2
+X2, y2 = X[mask], y[mask]
+
+lda = LinearDiscriminantAnalysis(n_components=1)
+X_lda = lda.fit_transform(X2, y2)
+
+plt.scatter(X_lda, y2, c=y2)
+plt.title("LDA Binary Classification")
+plt.xlabel("LDA Component")
+plt.show()
+
+
+
+Python
+
+
+
+
+# ================================================================
+# 📈 WEEK 8 — Linear Regression
+# ================================================================
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+
+data = pd.read_csv("data.csv")
+X = data[['Feature']]
+y = data['Target']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+model = LinearRegression().fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print("Slope:", model.coef_[0])
+print("Intercept:", model.intercept_)
+print("MSE:", round(mean_squared_error(y_test, y_pred),3))
+print("R²:", round(r2_score(y_test, y_pred),3))
+
+plt.scatter(X, y)
+plt.plot(X, model.predict(X), color='red')
+plt.title("Linear Regression Fit")
+plt.show()
+
+
+
+Python
+
+
+
+
+# ================================================================
+# 🌀 WEEK 9 — Non-Linear Regression (Polynomial)
+# ================================================================
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+
+data = pd.read_csv("data1.csv")
+X = data[['X']]; y = data['Y']
+
+poly = PolynomialFeatures(degree=3)
+X_poly = poly.fit_transform(X)
+model = LinearRegression().fit(X_poly, y)
+
+plt.scatter(X, y)
+X_sorted = np.sort(X.values)
+plt.plot(X_sorted, model.predict(poly.transform(X_sorted)), color='red')
+plt.title("Polynomial Regression (Degree=3)")
+plt.xlabel("X"); plt.ylabel("Y")
+plt.show()
+
+
+
+Python
+
+
+
+
+# ================================================================
+# 🧍 WEEK 10 — Support Vector Machine (SVM)
+# ================================================================
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score
+
+iris = load_iris()
+X_train, X_test, y_train, y_test = train_test_split(
+   iris.data, iris.target, test_size=0.2, random_state=42)
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+svm_model = SVC(kernel='linear', C=1.0)
+svm_model.fit(X_train, y_train)
+y_pred = svm_model.predict(X_test)
+print("SVM Accuracy:", round(accuracy_score(y_test, y_pred)*100, 2), "%")
+
+
+
+Python
+
+
+
+
+# ================================================================
+# 🌳 WEEK 11 — Regression Tree
+# ================================================================
+from sklearn.datasets import fetch_california_housing
+from sklearn.tree import DecisionTreeRegressor, plot_tree
+import matplotlib.pyplot as plt
+
+data = fetch_california_housing()
+X, y = data.data, data.target
+
+model = DecisionTreeRegressor(max_depth=3, random_state=0)
+model.fit(X, y)
+
+plt.figure(figsize=(12,6))
+plot_tree(model, feature_names=data.feature_names, filled=True, rounded=True)
+plt.title("Regression Tree for Cost Estimation")
+plt.show()
+
+print("Predicted Value (1st sample):", model.predict([X[0]])[0])
+
+
+
+Python
+
+
+
+
+# ================================================================
+# 🪄 WEEK 12 — Ensemble Model Tuning
+# ================================================================
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier, BaggingClassifier, GradientBoostingClassifier
+from sklearn.metrics import accuracy_score
+
+iris = load_iris()
+X_train, X_test, y_train, y_test = train_test_split(
+   iris.data, iris.target, test_size=0.3, random_state=42)
+
+rf = RandomForestClassifier(random_state=0).fit(X_train, y_train)
+bg = BaggingClassifier(random_state=0).fit(X_train, y_train)
+gb = GradientBoostingClassifier(random_state=0).fit(X_train, y_train)
+
+print("RandomForest Accuracy:", accuracy_score(y_test, rf.predict(X_test)))
+print("Bagging Accuracy:", accuracy_score(y_test, bg.predict(X_test)))
+print("GradientBoosting Accuracy:", accuracy_score(y_test, gb.predict(X_test)))
+
+
+
+Python
+
+
+
+
+# ================================================================
+# ⭐ WEEK 15 — Single Neural Network (MLPClassifier)
+# ================================================================
+from sklearn.neural_network import MLPClassifier
+
+AND_X = [[0,0],[0,1],[1,0],[1,1]]
+AND_y = [0,0,0,1]
+
+OR_X = [[0,0],[0,1],[1,0],[1,1]]
+OR_y = [0,1,1,1]
+
+XOR_X = [[0,0],[0,1],[1,0],[1,1]]
+XOR_y = [0,1,1,0]
+
+model = MLPClassifier(hidden_layer_sizes=(2,), activation='logistic',
+                      max_iter=10000, random_state=42)
+
+print("\n--- Logic Gate Predictions ---")
+model.fit(AND_X, AND_y); print("AND Gate Predictions :", model.predict(AND_X))
+model.fit(OR_X, OR_y); print("OR Gate Predictions  :", model.predict(OR_X))
+model.fit(XOR_X, XOR_y); print("XOR Gate Predictions :", model.predict(XOR_X))
